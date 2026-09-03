@@ -22,21 +22,16 @@ A lightweight BMP image editing tool with a graphical interface, built in C usin
 
 The [IUP](https://www.tecgraf.puc-rio.br/iup/) library itself is **already bundled** in this repo under `main/third_party/iup/`, so you do **not** need to download or install IUP separately.
 
-## Building and running (Linux)
-
-```bash
+commands for linux 
 sudo apt update
 sudo apt install -y build-essential libgtk-3-dev pkg-config git
 
-git clone https://github.com/heckerabid/Photoeditor.git
+git clone https://github.com/rustinch0le/Photoeditor.git
 cd Photoeditor/main
 make
-make run
-```
-
-This produces a `bmpedit` binary in `main/`. Run it directly with:
-
-```bash
-./bmpedit
-```
-
+make run 
+commands for windows 
+cd $HOME
+git clone https://github.com/rustinch0le/Photoeditor.git
+cd Photoeditor\main
+.\app.exe
