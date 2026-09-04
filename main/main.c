@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,37 +19,30 @@ BMPImage *image = NULL;
 Ihandle *imageBox = NULL;
 
 
-/* =========================
-   FUNCTION DECLARATIONS
-   ========================= */
 
 void updateImageDisplay(void);
 
 
+
+
 /* =========================
-   UNDO SYSTEM
+   UNDO (single step only)
    ========================= */
 
-#define MAX_UNDO 10
-
-typedef struct {
-    unsigned char *pixels;
-    int width;
-    int height;
-} UndoState;
-
-UndoState undoStack[MAX_UNDO];
-int undoCount = 0;
+unsigned char *previousPixels = NULL;
+int previousWidth = 0;
+int previousHeight = 0;
+int hasUndo = 0;
 
 
 void clearUndo(void)
 {
-    for (int i = 0; i < undoCount; i++) {
-        free(undoStack[i].pixels);
-        undoStack[i].pixels = NULL;
+    if (previousPixels != NULL) {
+        free(previousPixels);
+        previousPixels = NULL;
     }
 
-    undoCount = 0;
+    hasUndo = 0;
 }
 
 
@@ -59,34 +51,35 @@ void saveUndo(void)
     if (image == NULL)
         return;
 
-    if (undoCount == MAX_UNDO) {
+    /*
+       Throw away whatever was remembered
+       before, and remember the CURRENT
+       image instead. Only ever one
+       previous version is kept.
+    */
 
-        free(undoStack[0].pixels);
-
-        for (int i = 1; i < MAX_UNDO; i++) {
-            undoStack[i - 1] = undoStack[i];
-        }
-
-        undoCount--;
+    if (previousPixels != NULL) {
+        free(previousPixels);
+        previousPixels = NULL;
     }
 
     int size = image->width * image->height * 3;
 
-    undoStack[undoCount].pixels = malloc(size);
+    previousPixels = malloc(size);
 
-    if (undoStack[undoCount].pixels == NULL)
+    if (previousPixels == NULL)
         return;
 
     memcpy(
-        undoStack[undoCount].pixels,
+        previousPixels,
         image->pixels,
         size
     );
 
-    undoStack[undoCount].width = image->width;
-    undoStack[undoCount].height = image->height;
+    previousWidth = image->width;
+    previousHeight = image->height;
 
-    undoCount++;
+    hasUndo = 1;
 }
 
 
@@ -99,42 +92,44 @@ void undo(Ihandle *ih)
         return;
     }
 
-    if (undoCount == 0) {
+    if (!hasUndo) {
         IupMessage("Undo", "Nothing to undo.");
         return;
     }
 
-    undoCount--;
-
-    int width = undoStack[undoCount].width;
-    int height = undoStack[undoCount].height;
-    int size = width * height * 3;
+    int size = previousWidth * previousHeight * 3;
 
     unsigned char *pixels = malloc(size);
 
     if (pixels == NULL) {
         IupMessage("Error", "Not enough memory for undo.");
-        undoCount++;
         return;
     }
 
     memcpy(
         pixels,
-        undoStack[undoCount].pixels,
+        previousPixels,
         size
     );
 
     free(image->pixels);
 
     image->pixels = pixels;
-    image->width = width;
-    image->height = height;
+    image->width = previousWidth;
+    image->height = previousHeight;
 
-    image->infoheader.width = width;
-    image->infoheader.height = height;
+    image->infoheader.width = previousWidth;
+    image->infoheader.height = previousHeight;
 
-    free(undoStack[undoCount].pixels);
-    undoStack[undoCount].pixels = NULL;
+    /*
+       Once used, the remembered version
+       is gone - undo can't be pressed
+       again until a new change is made.
+    */
+
+    free(previousPixels);
+    previousPixels = NULL;
+    hasUndo = 0;
 
     updateImageDisplay();
 }
@@ -1306,4 +1301,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
