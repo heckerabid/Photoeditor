@@ -45,11 +45,11 @@ cd Photoeditor\main
 ```
 ## Screenshots
 
+### Opening Panel
+![Opening Panel](screenshots/opening-panel.jpg)
+
 ### Opening Image
 ![Opening Image](screenshots/opening-image.jpg)
 
 ### Inverted Image
 ![Inverted Image](screenshots/inverted-image.jpg)
-
-### Third Screenshot
-![Third Screenshot](screenshots/third-screenshot.jpg)
