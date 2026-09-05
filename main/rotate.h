@@ -3,6 +3,6 @@
 
 #include "openbmp.h"
 
-void rotate(BMPImage *image, int angle, int clockwise);
+void rotate(BMPImage *image);
 
 #endif
