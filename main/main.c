@@ -281,6 +281,88 @@ int open_cb(Ihandle *ih)
 
 
 /* =========================
+   SAVE
+   ========================= */
+
+int save_cb(Ihandle *ih)
+{
+    (void)ih;
+
+    if (image == NULL) {
+        IupMessage(
+            "Error",
+            "Open an image first."
+        );
+        return IUP_DEFAULT;
+    }
+
+    Ihandle *dialog = IupFileDlg();
+
+    IupSetAttribute(
+        dialog,
+        "DIALOGTYPE",
+        "SAVE"
+    );
+
+    IupSetAttribute(
+        dialog,
+        "FILTER",
+        "*.bmp"
+    );
+
+    IupSetAttribute(
+        dialog,
+        "FILTERINFO",
+        "BMP Files"
+    );
+
+    IupSetAttribute(
+        dialog,
+        "TITLE",
+        "Save BMP Image"
+    );
+
+    IupPopup(
+        dialog,
+        IUP_CENTER,
+        IUP_CENTER
+    );
+
+    char *status =
+        IupGetAttribute(dialog, "STATUS");
+
+    if (status != NULL &&
+        strcmp(status, "-1") != 0) {
+
+        char *filename =
+            IupGetAttribute(dialog, "VALUE");
+
+        if (filename != NULL) {
+
+            int result = saveBMP(filename, image);
+
+            if (!result) {
+                IupMessage(
+                    "Error",
+                    "Could not save BMP image."
+                );
+            }
+            else {
+                IupMessage(
+                    "Success",
+                    "Image saved successfully."
+                );
+            }
+        }
+    }
+
+    IupDestroy(dialog);
+
+    return IUP_DEFAULT;
+}
+
+
+/* =========================
    GRAYSCALE
    ========================= */
 
@@ -307,10 +389,11 @@ int grayscale_cb(Ihandle *ih)
 
 
 /* =========================
-   BRIGHTNESS
+   BRIGHTNESS (user-specified,
+   positive or negative)
    ========================= */
 
-int brightness1_cb(Ihandle *ih)
+int brightness_cb(Ihandle *ih)
 {
     (void)ih;
 
@@ -322,53 +405,101 @@ int brightness1_cb(Ihandle *ih)
         return IUP_DEFAULT;
     }
 
-    saveUndo();
+    Ihandle *levelText =
+        IupText(NULL);
 
-    brightness(image, 30);
+    IupSetAttribute(
+        levelText,
+        "VALUE",
+        "0"
+    );
 
-    updateImageDisplay();
+    IupSetAttribute(
+        levelText,
+        "RASTERSIZE",
+        "100x25"
+    );
 
-    return IUP_DEFAULT;
-}
+    Ihandle *ok =
+        IupButton("Apply", NULL);
 
+    Ihandle *cancel =
+        IupButton("Cancel", NULL);
 
-int brightness2_cb(Ihandle *ih)
-{
-    (void)ih;
+    Ihandle *box =
+        IupVbox(
 
-    if (image == NULL) {
+            IupLabel(
+                "Enter brightness change"
+                " (-255 to 255):"
+            ),
+
+            levelText,
+
+            IupHbox(
+                ok,
+                cancel,
+                NULL
+            ),
+
+            NULL
+        );
+
+    Ihandle *dialog =
+        IupDialog(box);
+
+    IupSetAttribute(
+        dialog,
+        "TITLE",
+        "Adjust Brightness"
+    );
+
+    IupSetAttribute(
+        dialog,
+        "RASTERSIZE",
+        "260x150"
+    );
+
+    IupSetCallback(
+        ok,
+        "ACTION",
+        (Icallback)IupExitLoop
+    );
+
+    IupSetCallback(
+        cancel,
+        "ACTION",
+        (Icallback)IupExitLoop
+    );
+
+    IupPopup(
+        dialog,
+        IUP_CENTER,
+        IUP_CENTER
+    );
+
+    char *levelValue =
+        IupGetAttribute(
+            levelText,
+            "VALUE"
+        );
+
+    int level = atoi(levelValue);
+
+    IupDestroy(dialog);
+
+    if (level < -255 || level > 255) {
         IupMessage(
             "Error",
-            "Open an image first."
+            "Brightness value must be"
+            " between -255 and 255."
         );
         return IUP_DEFAULT;
     }
 
     saveUndo();
 
-    brightness(image, 60);
-
-    updateImageDisplay();
-
-    return IUP_DEFAULT;
-}
-
-
-int brightness3_cb(Ihandle *ih)
-{
-    (void)ih;
-
-    if (image == NULL) {
-        IupMessage(
-            "Error",
-            "Open an image first."
-        );
-        return IUP_DEFAULT;
-    }
-
-    saveUndo();
-
-    brightness(image, 90);
+    brightness(image, level);
 
     updateImageDisplay();
 
@@ -455,7 +586,8 @@ int vertical_cb(Ihandle *ih)
 
 
 /* =========================
-   ROTATE
+   ROTATE (fixed 90 degrees
+   clockwise, per spec)
    ========================= */
 
 int rotate_cb(Ihandle *ih)
@@ -470,198 +602,9 @@ int rotate_cb(Ihandle *ih)
         return IUP_DEFAULT;
     }
 
-    Ihandle *clockwise =
-        IupToggle("Clockwise", NULL);
-
-    Ihandle *counterClockwise =
-        IupToggle("Counterclockwise", NULL);
-
-    Ihandle *direction =
-        IupRadio(
-            IupVbox(
-                clockwise,
-                counterClockwise,
-                NULL
-            )
-        );
-
-    IupSetAttribute(
-        clockwise,
-        "VALUE",
-        "ON"
-    );
-
-
-    Ihandle *angle90 =
-        IupToggle("90 Degrees", NULL);
-
-    Ihandle *angle180 =
-        IupToggle("180 Degrees", NULL);
-
-    Ihandle *angle270 =
-        IupToggle("270 Degrees", NULL);
-
-    Ihandle *angle =
-        IupRadio(
-            IupVbox(
-                angle90,
-                angle180,
-                angle270,
-                NULL
-            )
-        );
-
-    IupSetAttribute(
-        angle90,
-        "VALUE",
-        "ON"
-    );
-
-
-    Ihandle *ok =
-        IupButton("OK", NULL);
-
-    Ihandle *cancel =
-        IupButton("Cancel", NULL);
-
-
-    Ihandle *box =
-        IupVbox(
-
-            IupLabel("Direction"),
-            direction,
-
-            IupLabel("Angle"),
-            angle,
-
-            IupHbox(
-                ok,
-                cancel,
-                NULL
-            ),
-
-            NULL
-        );
-
-
-    Ihandle *dialog =
-        IupDialog(box);
-
-    IupSetAttribute(
-        dialog,
-        "TITLE",
-        "Rotate Image"
-    );
-
-    IupSetAttribute(
-        dialog,
-        "RASTERSIZE",
-        "250x220"
-    );
-
-
-    IupSetAttribute(
-        ok,
-        "PADDING",
-        "10x5"
-    );
-
-    IupSetAttribute(
-        cancel,
-        "PADDING",
-        "10x5"
-    );
-
-
-    /*
-       Store the result using dialog status.
-    */
-
-    IupSetAttribute(
-        dialog,
-        "STATUS",
-        "0"
-    );
-
-    IupSetCallback(
-        ok,
-        "ACTION",
-        (Icallback)IupExitLoop
-    );
-
-    IupSetCallback(
-        cancel,
-        "ACTION",
-        (Icallback)IupExitLoop
-    );
-
-
-    IupPopup(
-        dialog,
-        IUP_CENTER,
-        IUP_CENTER
-    );
-
-
-    int selectedDirection = 1;
-    int selectedAngle = 90;
-
-    char *clockwiseValue =
-        IupGetAttribute(
-            clockwise,
-            "VALUE"
-        );
-
-    char *counterValue =
-        IupGetAttribute(
-            counterClockwise,
-            "VALUE"
-        );
-
-    if (counterValue != NULL &&
-        strcmp(counterValue, "ON") == 0) {
-
-        selectedDirection = 0;
-    }
-
-
-    char *angle180Value =
-        IupGetAttribute(
-            angle180,
-            "VALUE"
-        );
-
-    char *angle270Value =
-        IupGetAttribute(
-            angle270,
-            "VALUE"
-        );
-
-    if (angle180Value != NULL &&
-        strcmp(angle180Value, "ON") == 0) {
-
-        selectedAngle = 180;
-    }
-
-    if (angle270Value != NULL &&
-        strcmp(angle270Value, "ON") == 0) {
-
-        selectedAngle = 270;
-    }
-
-
-    (void)clockwiseValue;
-
-    IupDestroy(dialog);
-
-
     saveUndo();
 
-    rotate(
-        image,
-        selectedAngle,
-        selectedDirection
-    );
+    rotate(image);
 
     updateImageDisplay();
 
@@ -1010,17 +953,14 @@ int main(int argc, char **argv)
     Ihandle *undoButton =
         IupButton("Undo", NULL);
 
+    Ihandle *saveButton =
+        IupButton("Save BMP", NULL);
+
     Ihandle *grayscaleButton =
         IupButton("Grayscale", NULL);
 
-    Ihandle *brightness1Button =
-        IupButton("Brightness 1", NULL);
-
-    Ihandle *brightness2Button =
-        IupButton("Brightness 2", NULL);
-
-    Ihandle *brightness3Button =
-        IupButton("Brightness 3", NULL);
+    Ihandle *brightnessButton =
+        IupButton("Brightness", NULL);
 
     Ihandle *invertButton =
         IupButton("Invert", NULL);
@@ -1064,27 +1004,21 @@ int main(int argc, char **argv)
     );
 
     IupSetCallback(
+        saveButton,
+        "ACTION",
+        (Icallback)save_cb
+    );
+
+    IupSetCallback(
         grayscaleButton,
         "ACTION",
         (Icallback)grayscale_cb
     );
 
     IupSetCallback(
-        brightness1Button,
+        brightnessButton,
         "ACTION",
-        (Icallback)brightness1_cb
-    );
-
-    IupSetCallback(
-        brightness2Button,
-        "ACTION",
-        (Icallback)brightness2_cb
-    );
-
-    IupSetCallback(
-        brightness3Button,
-        "ACTION",
-        (Icallback)brightness3_cb
+        (Icallback)brightness_cb
     );
 
     IupSetCallback(
@@ -1184,6 +1118,7 @@ int main(int argc, char **argv)
         IupHbox(
             openButton,
             undoButton,
+            saveButton,
             exitButton,
             NULL
         );
@@ -1192,9 +1127,7 @@ int main(int argc, char **argv)
     Ihandle *row2 =
         IupHbox(
             grayscaleButton,
-            brightness1Button,
-            brightness2Button,
-            brightness3Button,
+            brightnessButton,
             invertButton,
             NULL
         );
