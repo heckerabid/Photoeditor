@@ -50,7 +50,7 @@ cd Photoeditor\main
 
 
 ### Opening Images
-![Opening Images](opening-image.jpg)
+![Opening Images](screenshots/opening-image.jpg)
 
 ### Inverted Image
-![Inverted Image](inverted-image.jpg)
+![Inverted Image](screenshots/inverted-image.jpg)
