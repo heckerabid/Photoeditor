@@ -21,8 +21,8 @@ A lightweight BMP image editing tool with a graphical interface, built in C usin
 - GTK3 development headers (`libgtk-3-dev`) and `pkg-config`
 
 The [IUP](https://www.tecgraf.puc-rio.br/iup/) library itself is **already bundled** in this repo under `main/third_party/iup/`, so you do **not** need to download or install IUP separately.
-
-commands for linux 
+..................................
+commands for linux : 
 sudo apt update
 sudo apt install -y build-essential libgtk-3-dev pkg-config git
 
@@ -30,7 +30,8 @@ git clone https://github.com/rustinch0le/Photoeditor.git
 cd Photoeditor/main
 make
 make run 
-commands for windows 
+..................................
+commands for windows: 
 cd $HOME
 git clone https://github.com/rustinch0le/Photoeditor.git
 cd Photoeditor\main
