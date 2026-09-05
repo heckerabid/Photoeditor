@@ -48,8 +48,6 @@ cd Photoeditor\main
 ### Opening Panel
 ![Opening Panel](screenshots/opening-panel.jpg)
 
-### Opening Image
-![Opening Image](screenshots/opening-image.jpg)
 
-### Inverted Image
-![Inverted Image](screenshots/inverted-image.jpg)
+### Opening Images
+![Opening Images](screenshots/inverted-image.jpg)
