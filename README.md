@@ -36,3 +36,5 @@ cd $HOME
 git clone https://github.com/rustinch0le/Photoeditor.git
 cd Photoeditor\main
 .\app.exe
+
+...................................
