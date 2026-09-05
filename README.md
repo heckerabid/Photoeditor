@@ -1,3 +1,4 @@
+
 # Photoeditor
 
 A lightweight BMP image editing tool with a graphical interface, built in C using the [IUP](https://www.tecgraf.puc-rio.br/iup/) toolkit.
@@ -42,3 +43,13 @@ git clone https://github.com/rustinch0le/Photoeditor.git
 cd Photoeditor\main
 .\app.exe
 ```
+## Screenshots
+
+### Opening Image
+![Opening Image](screenshots/opening-image.jpg)
+
+### Inverted Image
+![Inverted Image](screenshots/inverted-image.jpg)
+
+### Third Screenshot
+![Third Screenshot](screenshots/third-screenshot.jpg)
