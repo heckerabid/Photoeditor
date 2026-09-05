@@ -29,7 +29,7 @@ The [IUP](https://www.tecgraf.puc-rio.br/iup/) library itself is **already bundl
 sudo apt update
 sudo apt install -y build-essential libgtk-3-dev pkg-config git
 
-git clone https://github.com/rustinch0le/Photoeditor.git
+git clone https://github.com/rustinecohle/Photoeditor.git
 cd Photoeditor/main
 make
 make run
@@ -39,7 +39,7 @@ make run
 
 ```powershell
 cd $HOME
-git clone https://github.com/rustinch0le/Photoeditor.git
+git clone https://github.com/rustinecohle/Photoeditor.git
 cd Photoeditor\main
 .\app.exe
 ```
